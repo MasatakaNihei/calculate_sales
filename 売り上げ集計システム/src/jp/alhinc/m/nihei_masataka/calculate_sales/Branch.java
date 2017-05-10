@@ -1,9 +1,18 @@
 package jp.alhinc.m.nihei_masataka.calculate_sales;
 
+import java.util.regex.Pattern;
+
 public class Branch implements Comparable<Branch> {
 	String bCode; //支店コード
 	String bName; //支店名
 	long bSum; //支店合計金額
+	
+	static Pattern bp = Pattern.compile("([０-９]|\\d){3},([^,])+"); //支店定義ファイルの1行のフォーマットを正規表現にコンパイル
+	
+	public static boolean bCheck(String s){ //引数で渡された支店定義ファイルの1行がフォーマット通りかチェックする
+		return bp.matcher(s).find();
+		
+	}
 	
 	Branch(String n, String m){
 		this.bCode =n;
