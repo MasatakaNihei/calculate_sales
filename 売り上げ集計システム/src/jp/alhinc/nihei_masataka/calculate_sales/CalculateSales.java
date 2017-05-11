@@ -90,7 +90,7 @@ public class CalculateSales {
 		//数字8桁.rcdのファイルを抽出し、数字部分をリストへ格納
 		File folder = new File(drectory);
 		String[] fileList = folder.list();
-		Pattern r = Pattern.compile("^([０-９]|\\d){8}.rcd$");
+		Pattern r = Pattern.compile("^([０-９]|\\d){8}\\.rcd$");
 		ArrayList<Integer> rcdNo = new ArrayList<Integer>();
 		String[] splitrcd;
 		for(String fileName : fileList){
