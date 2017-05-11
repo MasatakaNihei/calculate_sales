@@ -20,15 +20,6 @@ public class Commodity implements Comparable<Commodity> {  //Branchクラスの�
 		this.cSum=0;
 		}
 	
-	long cAddition(String s){
-		try{
-			this.cSum += Long.parseLong(s);
-			
-		}catch(NumberFormatException e){
-			System.out.println("e");
-		}
-		return this.cSum;
-	}
 	
 	public int compareTo(Commodity com){
 		if(this.cSum > com.cSum){

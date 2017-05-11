@@ -138,8 +138,8 @@ public class CalculateSales {
 					return;
 				}
 				
-				long b =(bMap.get(rcd[0])).bAddition(rcd[2]); //支店コードに対応するBranchインスタンスのbSumへ金額を加算し,加算後の金額を戻り値で取得
-				long c =(cMap.get(rcd[1])).cAddition(rcd[2]); //前行の商品版
+				long b =(bMap.get(rcd[0])).bSum += Long.parseLong(rcd[2]); //支店コードに対応するBranchインスタンスのbSumへ金額を加算
+				long c =(cMap.get(rcd[1])).cSum += Long.parseLong(rcd[2]); //前行の商品版
 				if(b >= 10000000000L || c >= 10000000000L){
 					System.out.println("合計金額が10桁を超えました");
 					System.out.print(b+","+c);
@@ -150,6 +150,11 @@ public class CalculateSales {
 			}catch(IOException e){
 				System.out.println("予期せぬエラーが発生しました");
 				return;
+			
+			}catch(NumberFormatException e){
+				System.out.println("予期せぬエラーが発生しました");
+				return;
+			
 			}finally{
 				try {
 					br.close();

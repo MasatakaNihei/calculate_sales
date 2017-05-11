@@ -20,15 +20,6 @@ public class Branch implements Comparable<Branch> {
 		this.bSum =0;
 		}
 	
-	long bAddition(String s){  //引数で渡された金額(String型)を自身の合計金額に加算し、合計金額を返す
-		try{
-			this.bSum +=Long.parseLong(s);
-			
-		}catch(NumberFormatException e){
-			System.out.println("e");
-		}
-		return this.bSum;
-	}
 	
 	public int compareTo(Branch bran){
 		if(this.bSum > bran.bSum){
