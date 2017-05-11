@@ -25,6 +25,10 @@ public class CalculateSales {
 		BufferedReader br = null;
 		try{
 			File file = new File(drectory + File.separator +"branch.lst");
+			if(file.isFile() == false){
+				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}
 			if(file.exists() == false){
 				System.out.println("支店定義ファイルが存在しません");
 				return;
@@ -59,6 +63,10 @@ public class CalculateSales {
 		HashMap<String, Commodity> cMap = new HashMap<String, Commodity>();
 		try{
 			  File file = new File(drectory+ File.separator + "commodity.lst");
+			  if(file.isFile() == false){
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+				}
 			  if(file.exists() == false){
 				  System.out.println("商品定義ファイルが存在しません");
 				  return;
@@ -93,12 +101,13 @@ public class CalculateSales {
 		
 		//数字8桁.rcdのファイルを抽出し、数字部分をリストへ格納
 		File folder = new File(drectory);
+		
 		String[] fileList = folder.list();
 		Pattern r = Pattern.compile("^([０-９]|\\d){8}\\.rcd$");
 		ArrayList<Integer> rcdNo = new ArrayList<Integer>();
 		String[] splitrcd;
 		for(String fileName : fileList){
-			if(r.matcher(fileName).find()){
+			if(r.matcher(fileName).find() && (new File(drectory + File.separator + fileName)).isFile()){
 				splitrcd = fileName.split("\\.");
 				rcdNo.add(Integer.parseInt(splitrcd[0]));
 			}
@@ -124,15 +133,22 @@ public class CalculateSales {
 					try{                                           //rcd[0]=支店コード、同[1]=商品コード、同[2]=売上金額
 						rcd[n] = s;
 						
-					}catch(ArrayIndexOutOfBoundsException e){
+					}catch(ArrayIndexOutOfBoundsException e){ //4行以上ある場合
 						System.out.println(String.format("%08d",name) +".rcdのフォーマットが不正です");
 						return;
 					}
-					if((rcd[n] == null)|(Pattern.compile("\\s")).matcher(rcd[n]).find()){  //読み込んだ一行がnullまたは空白の場合
+					if((rcd[n].equals("")) | (Pattern.compile("^\\s+$")).matcher(rcd[n]).find()){  //読み込んだ一行が改行または空白のみの場合
 						System.out.println(String.format("%08d",name) +".rcdのフォーマットが不正です");
 						return;
 					}
+					
 				}
+				
+				if(rcd[2]== null){  //売上ファイルが2行しかなかった場合
+					System.out.println(String.format("%08d",name) +".rcdのフォーマットが不正です");
+					return;
+				}
+				
 				
 				if(bMap.get(rcd[0]) == null){
 					System.out.println(String.format("%08d",name) + ".rcdの支店コードが不正です");
@@ -201,11 +217,16 @@ public class CalculateSales {
 		}catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
 			return;
+		}catch(NullPointerException e){
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		}finally{
 			try {
 				bw.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}catch(NullPointerException e){
 				return;
 			}
 		}
@@ -219,11 +240,16 @@ public class CalculateSales {
 		}catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
 			return;
+		}catch(NullPointerException e){
+			System.out.println("予期せぬエラーが発生しました");
+			return;
 		}finally{
 			try {
 				bw.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}catch(NullPointerException e){
 				return;
 			}
 		}
