@@ -132,43 +132,26 @@ public class CalculateSales {
 		for(int name : rcdNo){
 			try {
 				br =new BufferedReader(new FileReader(drectory+ File.separator + String.format("%08d",name) + ".rcd")); 
-				String s;
-				String[] rcd = new String[3]; 
 				
-				for(int n = 0; (s = br.readLine()) != null; n++){ //読み込んだ売上データを配列rcdへ格納
-					try{                                           //rcd[0]=支店コード、同[1]=商品コード、同[2]=売上金額
-						rcd[n] = s;
-						
-					}catch(ArrayIndexOutOfBoundsException e){ //4行以上ある場合
-						System.out.println(String.format("%08d",name) +".rcdのフォーマットが不正です");
-						return;
-					}
-					if((rcd[n].equals("")) | (Pattern.compile("^\\s+$")).matcher(rcd[n]).find()){  //読み込んだ一行が改行または空白のみの場合
-						System.out.println(String.format("%08d",name) +".rcdのフォーマットが不正です");
-						return;
-					}
-					
-				}
+				int rcdError = RcdInput.rIn(br, bMap, cMap);
 				
-				if(rcd[2]== null){  //売上ファイルが2行しかなかった場合
+				
+				if(rcdError == 1){
 					System.out.println(String.format("%08d",name) +".rcdのフォーマットが不正です");
 					return;
 				}
 				
-				
-				if(bMap.get(rcd[0]) == null){
+				if(rcdError == 2){
 					System.out.println(String.format("%08d",name) + ".rcdの支店コードが不正です");
 					return;
 				}
 				
-				if(cMap.get(rcd[1]) == null){
+				if(rcdError == 3){
 					System.out.println(String.format("%08d",name) + ".rcdの商品コードが不正です");
 					return;
 				}
 				
-				long b =(bMap.get(rcd[0])).bSum += Long.parseLong(rcd[2]); //支店コードに対応するBranchインスタンスのbSumへ金額を加算
-				long c =(cMap.get(rcd[1])).cSum += Long.parseLong(rcd[2]); //前行の商品版
-				if(String.valueOf(b).length() >10 || String.valueOf(c).length() > 10){
+				if(rcdError == 4){
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
@@ -219,7 +202,7 @@ public class CalculateSales {
 		    bw = new BufferedWriter(new FileWriter(new File (drectory+ File.separator + "branch.out")));	
 		    
 		    for(Branch bran : bList){
-		    	bw.write(bran.bCode + "," + bran.bName + "," + bran.bSum + System.getProperty("line.separator"));
+		    	Output.bOut(bran, bw);
 		    }
 		}catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
@@ -243,7 +226,7 @@ public class CalculateSales {
 			bw = new BufferedWriter(new FileWriter(new File (drectory+ File.separator + "commodity.out")));
 			
 			for(Commodity comm : cList){
-				bw.write(comm.cCode + "," + comm.cName + "," + comm.cSum + System.getProperty("line.separator"));
+				Output.cOut(comm, bw);
 			}
 		}catch(IOException e){
 			System.out.println("予期せぬエラーが発生しました");
