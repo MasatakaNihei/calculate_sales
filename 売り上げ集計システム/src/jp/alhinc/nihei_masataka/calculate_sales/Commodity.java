@@ -17,10 +17,7 @@ public class Commodity implements Comparable<Commodity> {  //Branchクラスの�
 			return -1;
 		}else{
 			return 1;
-		}
-	
-		
+		}	
 	}
-
 
 }
