@@ -27,8 +27,10 @@ public class CalculateSales {
 			}
 		    br =new BufferedReader(new FileReader(file)); //店舗定義ファイル読み込みストリーム
 		    String bs;
+		    Pattern bp = Pattern.compile("([０-９]|\\d){3},([^,])+");
+		    
 		    while((bs = br.readLine()) != null){  //店舗定義データを一行ずつ読み込み、bMapへ格納
-		    	if(Branch.bCheck(bs) == false){
+		    	if(bp.matcher(bs).find() == false){
 		    		System.out.println("支店定義ファイルのフォーマットが不正です");
 		    		return;
 		    	}
@@ -60,9 +62,9 @@ public class CalculateSales {
 			   	
 			  br =new BufferedReader(new FileReader(file)); 
 			  String bs;
-			  
+			  Pattern  cp = Pattern.compile("(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8},[^,]+");
 			  while((bs = br.readLine()) != null){ 
-				  if(Commodity.cCheck(bs) == false){
+				  if(cp.matcher(bs).find() == false){
 					  System.out.println("商品定義ファイルのフォーマットが不正です");
 					  return;
 				  }
