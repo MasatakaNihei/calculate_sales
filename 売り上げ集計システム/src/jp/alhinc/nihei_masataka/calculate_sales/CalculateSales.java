@@ -25,14 +25,17 @@ public class CalculateSales {
 		BufferedReader br = null;
 		try{
 			File file = new File(drectory + File.separator +"branch.lst");
-			if(file.isFile() == false){
-				System.out.println("予期せぬエラーが発生しました");
-				return;
-			}
+			
 			if(file.exists() == false){
 				System.out.println("支店定義ファイルが存在しません");
 				return;
 			}
+			
+			if(file.isFile() == false){
+				System.out.println("予期せぬエラーが発生しました");
+				return;
+			}
+			
 		    br =new BufferedReader(new FileReader(file)); //店舗定義ファイル読み込みストリーム
 		    String bs;
 		    Pattern bp = Pattern.compile("^([０-９]|\\d){3},([^,^\\s])+$");
@@ -51,6 +54,7 @@ public class CalculateSales {
 			return;
 		}finally{
 			try {
+				if(br != null)
 				br.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
@@ -63,15 +67,16 @@ public class CalculateSales {
 		HashMap<String, Commodity> cMap = new HashMap<String, Commodity>();
 		try{
 			  File file = new File(drectory+ File.separator + "commodity.lst");
-			  if(file.isFile() == false){
-					System.out.println("予期せぬエラーが発生しました");
-					return;
-				}
+			 
 			  if(file.exists() == false){
 				  System.out.println("商品定義ファイルが存在しません");
 				  return;
 			  }
-			   	
+			  if(file.isFile() == false){
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+			  }	
+			  
 			  br =new BufferedReader(new FileReader(file)); 
 			  String bs;
 			  Pattern  cp = Pattern.compile("^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8},([^,^\\s])+$");
@@ -90,6 +95,7 @@ public class CalculateSales {
 			return;
 		}finally{
 			try {
+				if(br != null)
 				br.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
@@ -178,6 +184,7 @@ public class CalculateSales {
 			
 			}finally{
 				try {
+					if(br != null)
 					br.close();
 				} catch (IOException e) {
 					System.out.println("予期せぬエラーが発生しました");
@@ -222,6 +229,7 @@ public class CalculateSales {
 			return;
 		}finally{
 			try {
+				if(bw != null)
 				bw.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
@@ -245,6 +253,7 @@ public class CalculateSales {
 			return;
 		}finally{
 			try {
+				if(bw != null)
 				bw.close();
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
