@@ -25,26 +25,14 @@ public class CalculateSales {
 	}
 
 	//定義ファイル読み込みメソッド。例外の文を戻り値で返す。
-	public static String fileInput(String filePass , String fileName, HashMap<String,CalculateSales> map){
+	public static String fileInput(String filePass , String fileName, String name, String pattern,  HashMap<String,CalculateSales> map){
 		BufferedReader br = null;
-		String pattern = null;//定義ファイルのフォーマットの正規表現
-		String bORc = null;//定義ファイルのファイル名
-		
-		//支店定義ファイルか商品定義ファイルかをファイル名から判断、それに応じた正規表現とファイル名を選択
-		if (fileName.equals("branch.lst")){ 
-			pattern = "^([０-９]|\\d){3},([^,^\\s])+$";
-			bORc = "支店";
-		}
-		if(fileName.equals("commodity.lst")){
-			pattern = "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8},([^,^\\s])+$";
-			bORc = "商品";
-		}
-		
+
 		try{
 			File file = new File(filePass + File.separator + fileName);
 			
 			if(!file.exists()){
-				return bORc + "定義ファイルが存在しません";
+				return name + "定義ファイルが存在しません";
 			}
 			
 			if(!file.isFile()){
@@ -55,7 +43,7 @@ public class CalculateSales {
 		    String s;
 		    while((s = br.readLine()) != null){  //定義データを一行ずつ読み込み、引き値で渡されたHashMapへ格納
 		    	if(!s.matches(pattern)){
-		    		return bORc + "定義ファイルのフォーマットが不正です";
+		    		return name + "定義ファイルのフォーマットが不正です";
 		    	}
 		    	String[] str = s.split(",");
 		    	map.put(str[0], new CalculateSales(str[0],str[1]));  
@@ -130,7 +118,7 @@ public class CalculateSales {
 		
 		HashMap<String, CalculateSales> bMap = new HashMap<String, CalculateSales>();
 	
-		errorCode = CalculateSales.fileInput(derectory, "branch.lst", bMap);
+		errorCode = CalculateSales.fileInput(derectory, "branch.lst","支店" , "^([０-９]|\\d){3},([^,^\\s])+$", bMap);
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
@@ -140,7 +128,7 @@ public class CalculateSales {
 		//2.商品定義ファイル読み込み(支店と同様
 		HashMap<String, CalculateSales> cMap = new HashMap<String, CalculateSales>();
 		
-		errorCode = CalculateSales.fileInput(derectory, "commodity.lst", cMap);
+		errorCode = CalculateSales.fileInput(derectory, "commodity.lst","商品" , "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8},([^,^\\s])+$", cMap);
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
