@@ -9,10 +9,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-public class CalculateSales {
+public class CalculateSales implements Comparable<CalculateSales>{
+	String code;
+	String name;
+	long sum;
+	
+	public CalculateSales(String n, String m){
+		this.code = n;
+		this.name = m;
+		this.sum = 0;
+	}
+	
+	public int compareTo(CalculateSales s){
+		if(this.sum > s.sum){
+			return -1;
+		}else{
+			return 1;
+		}	
+	}
+	
 	
 	//定義ファイル読み込みメソッド。例外の文を戻り値で返す。
-	public static String fileInput(String filePass , String fileName, HashMap<String,ThreeValues> map){
+	public static String fileInput(String filePass , String fileName, HashMap<String,CalculateSales> map){
 		BufferedReader br = null;
 		Pattern p = null;//定義ファイルのフォーマットの正規表現
 		String bORc = null;//定義ファイルのファイル名
@@ -45,7 +63,7 @@ public class CalculateSales {
 		    		return bORc + "定義ファイルのフォーマットが不正です";
 		    	}
 		    	String[] str = s.split(",");         
-		    	map.put(str[0], new ThreeValues(str[0],str[1]));  
+		    	map.put(str[0], new CalculateSales(str[0],str[1]));  
 		    }
 		    
 		}catch(IOException e){
@@ -64,9 +82,9 @@ public class CalculateSales {
 	
 		
 	//集計ファイル出力メソッド。例外の文を戻り値で返す。
-	public static String fileOutput(String filePass , String fileName, HashMap<String, ThreeValues> map){
-		ArrayList<ThreeValues> sortArray = new ArrayList<ThreeValues>();
-		for(ThreeValues t : map.values()){
+	public static String fileOutput(String filePass , String fileName, HashMap<String, CalculateSales> map){
+		ArrayList<CalculateSales> sortArray = new ArrayList<CalculateSales>();
+		for(CalculateSales t : map.values()){
 			sortArray.add(t);
 		}
 		
@@ -75,7 +93,7 @@ public class CalculateSales {
 		try{
 			bw = new BufferedWriter(new FileWriter(new File (filePass + File.separator + fileName))); 
 			
-			for(ThreeValues t : sortArray ){
+			for(CalculateSales t : sortArray ){
 				bw.write(t.code + "," + t.name + "," + t.sum + "\r\n");
 			}
 		}catch(IOException e){
@@ -116,7 +134,7 @@ public class CalculateSales {
 		//1.支店定義ファイル読み込み
 		//HashMapへ、支店コードをキーとして、対応する支店コード、支店名、合計金額(初期値0)を持つBranchインスタンスを生成・格納する
 		
-		HashMap<String, ThreeValues> bMap = new HashMap<String, ThreeValues>();
+		HashMap<String, CalculateSales> bMap = new HashMap<String, CalculateSales>();
 	
 		errorCode = CalculateSales.fileInput(derectory, "branch.lst", bMap);
 		
@@ -126,7 +144,7 @@ public class CalculateSales {
 		}
 		
 		//2.商品定義ファイル読み込み(支店と同様
-		HashMap<String, ThreeValues> cMap = new HashMap<String, ThreeValues>();
+		HashMap<String, CalculateSales> cMap = new HashMap<String, CalculateSales>();
 		
 		errorCode = CalculateSales.fileInput(derectory, "commodity.lst", cMap);
 		
@@ -149,13 +167,13 @@ public class CalculateSales {
 		}
 		//連番のチェック
 		Collections.sort(rcdFiles);
-		int next = Integer.parseInt(rcdFiles.get(1).getName().split("\\.")[0]);
-		for(File now : rcdFiles){
-			if(Integer.parseInt(now.getName().substring(0 , 8))+1 != next){
+		int now = Integer.parseInt(rcdFiles.get(0).getName().split("\\.")[0]);
+		for(File f : rcdFiles){
+			if(Integer.parseInt(f.getName().substring(0 , 8)) != now){
 				System.out.println("売上ファイル名が連番になっていません");
 				return;
 			}
-			next ++ ;
+			now ++ ;
 		}
 		
 		//売上ファイルを読み込み、各マップへ集計
