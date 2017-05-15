@@ -7,9 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-public class CalculateSales implements Comparable<CalculateSales>{
+public class CalculateSales {
 	String code;
 	String name;
 	long sum;
@@ -20,15 +21,10 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		this.sum = 0;
 	}
 	
-	public int compareTo(CalculateSales s){
-		if(this.sum > s.sum){
-			return -1;
-		}else{
-			return 1;
-		}	
+	public long getSum(){
+		return this.sum;
 	}
-	
-	
+
 	//定義ファイル読み込みメソッド。例外の文を戻り値で返す。
 	public static String fileInput(String filePass , String fileName, HashMap<String,CalculateSales> map){
 		BufferedReader br = null;
@@ -84,17 +80,16 @@ public class CalculateSales implements Comparable<CalculateSales>{
 	//集計ファイル出力メソッド。例外の文を戻り値で返す。
 	public static String fileOutput(String filePass , String fileName, HashMap<String, CalculateSales> map){
 		ArrayList<CalculateSales> sortArray = new ArrayList<CalculateSales>();
-		for(CalculateSales t : map.values()){
-			sortArray.add(t);
-		}
 		
-		Collections.sort(sortArray);
+		sortArray.addAll(map.values());
+		Collections.sort(sortArray, Comparator.comparing(CalculateSales::getSum).reversed());
+		
 		BufferedWriter bw =null ;
 		try{
 			bw = new BufferedWriter(new FileWriter(new File (filePass + File.separator + fileName))); 
 			
-			for(CalculateSales t : sortArray ){
-				bw.write(t.code + "," + t.name + "," + t.sum + "\r\n");
+			for(CalculateSales cal : sortArray ){
+				bw.write(cal.code + "," + cal.name + "," + cal.sum + System.lineSeparator());
 			}
 		}catch(IOException e){
 			return "予期せぬエラーが発生しました";
