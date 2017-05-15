@@ -160,7 +160,11 @@ public class CalculateSales {
 		}
 		//連番のチェック
 		Collections.sort(rcdFiles);
-		int now = Integer.parseInt(rcdFiles.get(0).getName().split("\\.")[0]);
+		int now =0;
+		if(rcdFiles.size() != 0){
+			now = Integer.parseInt(rcdFiles.get(0).getName().split("\\.")[0]);
+		}
+		
 		for(File f : rcdFiles){
 			if(Integer.parseInt(f.getName().substring(0 , 8)) != now){
 				System.out.println("売上ファイル名が連番になっていません");
