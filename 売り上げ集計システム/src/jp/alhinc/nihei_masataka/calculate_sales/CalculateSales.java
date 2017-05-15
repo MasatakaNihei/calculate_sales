@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 public class CalculateSales {
 	String code;
 	String name;
@@ -28,37 +27,37 @@ public class CalculateSales {
 	//定義ファイル読み込みメソッド。例外の文を戻り値で返す。
 	public static String fileInput(String filePass , String fileName, HashMap<String,CalculateSales> map){
 		BufferedReader br = null;
-		Pattern p = null;//定義ファイルのフォーマットの正規表現
+		String pattern = null;//定義ファイルのフォーマットの正規表現
 		String bORc = null;//定義ファイルのファイル名
 		
 		//支店定義ファイルか商品定義ファイルかをファイル名から判断、それに応じた正規表現とファイル名を選択
 		if (fileName.equals("branch.lst")){ 
-			p = Pattern.compile("^([０-９]|\\d){3},([^,^\\s])+$");
+			pattern = "^([０-９]|\\d){3},([^,^\\s])+$";
 			bORc = "支店";
 		}
 		if(fileName.equals("commodity.lst")){
-			p = Pattern.compile("^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8},([^,^\\s])+$");
+			pattern = "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8},([^,^\\s])+$";
 			bORc = "商品";
 		}
 		
 		try{
 			File file = new File(filePass + File.separator + fileName);
 			
-			if(file.exists() == false){
+			if(!file.exists()){
 				return bORc + "定義ファイルが存在しません";
 			}
 			
-			if(file.isFile() == false){
+			if(!file.isFile()){
 				return "予期せぬエラーが発生しました";
 			}
 			
 		    br =new BufferedReader(new FileReader(file));
 		    String s;
 		    while((s = br.readLine()) != null){  //定義データを一行ずつ読み込み、引き値で渡されたHashMapへ格納
-		    	if(p.matcher(s).find() == false){
+		    	if(!s.matches(pattern)){
 		    		return bORc + "定義ファイルのフォーマットが不正です";
 		    	}
-		    	String[] str = s.split(",");         
+		    	String[] str = s.split(",");
 		    	map.put(str[0], new CalculateSales(str[0],str[1]));  
 		    }
 		    
@@ -73,7 +72,7 @@ public class CalculateSales {
 			}
 		}
 		
-		return "NoError";
+		return "";
 	}
 	
 		
@@ -106,7 +105,7 @@ public class CalculateSales {
 			}
 		}
 		
-		return "NoError";
+		return "";
 	}
 	
 	public static void main(String[] args){
@@ -118,13 +117,13 @@ public class CalculateSales {
 		
 		String derectory;
 		//コマンドライン引数の末尾がファイルセパレーターの場合、末尾を一文字削って変数derectoryへ受け取る
-		if((Pattern.compile(File.separator+"$")).matcher(args[0]).find()){ 
+		if(args[0].matches(File.separator+"$")){ 
 			derectory = args[0].substring(0, (args[0].length()-1));
 		}else{
 			derectory = args[0];  //drectory=コマンドライン引数で受け取ったディレクトリ
 		}
 		
-		String errorCode = "NoError"; //各メソッドからエラー文を受け取る変数
+		String errorCode = ""; //各メソッドからエラー文を受け取る変数
 		
 		//1.支店定義ファイル読み込み
 		//HashMapへ、支店コードをキーとして、対応する支店コード、支店名、合計金額(初期値0)を持つBranchインスタンスを生成・格納する
@@ -133,7 +132,7 @@ public class CalculateSales {
 	
 		errorCode = CalculateSales.fileInput(derectory, "branch.lst", bMap);
 		
-		if(errorCode.equals("NoError") != true){
+		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
 			return;
 		}
@@ -143,7 +142,7 @@ public class CalculateSales {
 		
 		errorCode = CalculateSales.fileInput(derectory, "commodity.lst", cMap);
 		
-		if(errorCode.equals("NoError") != true){
+		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
 			return;
 		}
@@ -152,10 +151,9 @@ public class CalculateSales {
 		
 		//数字8桁.rcdのファイルを抽出し、数字部分をリストへ格納
 		File[] fileList = new File(derectory).listFiles();
-		Pattern rcdPattern = Pattern.compile("^([０-９]|\\d){8}\\.rcd$");
 		ArrayList<File> rcdFiles = new ArrayList<File>();
 		for(File file : fileList){
-			if(rcdPattern.matcher(file.getName()).find() && file.isFile()){
+			if(file.getName().matches("^([０-９]|\\d){8}\\.rcd$") && file.isFile()){
 				rcdFiles.add(file);
 			}
 			
@@ -186,7 +184,7 @@ public class CalculateSales {
 						System.out.println(file.getName() +"のフォーマットが不正です");
 						return;
 					}
-					if((rcdstr[n].equals("")) | (Pattern.compile("^\\s+$")).matcher(rcdstr[n]).find()){  //読み込んだ一行が改行または空白のみの場合
+					if(rcdstr[n].isEmpty() || rcdstr[n].matches("^\\s+$")){  //読み込んだ一行が改行または空白のみの場合
 						System.out.println(file.getName() +"のフォーマットが不正です");
 						return;
 					}
@@ -241,14 +239,14 @@ public class CalculateSales {
 	    
 		errorCode = CalculateSales.fileOutput(derectory , "branch.out" , bMap); //支店別集計ファイルの出力
 		
-		if(errorCode.equals("NoError") != true){
+		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
 			return;
 		}
 		
 		errorCode =  CalculateSales.fileOutput(derectory , "commodity.out" , cMap); //商品別集計ファイルの出力
 		
-		if(errorCode.equals("NoError") != true){
+		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
 			return;
 		}
