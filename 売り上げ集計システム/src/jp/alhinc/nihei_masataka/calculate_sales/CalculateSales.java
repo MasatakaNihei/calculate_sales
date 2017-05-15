@@ -7,29 +7,33 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-public class CalculateSales {
+public class CalculateSales implements Comparable<CalculateSales>{
 	String code;
 	String name;
 	long sum;
 	
 	public CalculateSales(String n, String m){
-		this.code = n;
+		 this.code = n;
 		this.name = m;
 		this.sum = 0;
 	}
 	
-	public long getSum(){
-		return this.sum;
+	public int compareTo(CalculateSales c){
+		if(this.sum > c.sum){
+			return 1;
+		}else{
+			return -1;
+		}
 	}
+	
 
 	//定義ファイル読み込みメソッド。例外の文を戻り値で返す。
 	public static String fileInput(String filePass , String fileName, String name, String pattern,  HashMap<String,CalculateSales> map){
 		BufferedReader br = null;
 
 		try{
-			File file = new File(filePass + File.separator + fileName);
+			File file = new File(filePass , fileName);
 			
 			if(!file.exists()){
 				return name + "定義ファイルが存在しません";
@@ -69,11 +73,12 @@ public class CalculateSales {
 		ArrayList<CalculateSales> sortArray = new ArrayList<CalculateSales>();
 		
 		sortArray.addAll(map.values());
-		Collections.sort(sortArray, Comparator.comparing(CalculateSales::getSum).reversed());
+		Collections.sort(sortArray);
+		Collections.reverse(sortArray);
 		
 		BufferedWriter bw =null ;
 		try{
-			bw = new BufferedWriter(new FileWriter(new File (filePass + File.separator + fileName))); 
+			bw = new BufferedWriter(new FileWriter(new File (filePass , fileName))); 
 			
 			for(CalculateSales cal : sortArray ){
 				bw.write(cal.code + "," + cal.name + "," + cal.sum + System.lineSeparator());
@@ -141,7 +146,7 @@ public class CalculateSales {
 		File[] fileList = new File(derectory).listFiles();
 		ArrayList<File> rcdFiles = new ArrayList<File>();
 		for(File file : fileList){
-			if(file.getName().matches("^([０-９]|\\d){8}\\.rcd$") && file.isFile()){
+			if(file.isFile() && file.getName().matches("^([０-９]|\\d){8}\\.rcd$")){
 				rcdFiles.add(file);
 			}
 			
@@ -167,46 +172,54 @@ public class CalculateSales {
 			try {
 				rcdbr =new BufferedReader(new FileReader(file)); 
 				String s;
-				String[] rcdstr = new String[3];
-				for(int n = 0; (s = rcdbr.readLine()) != null; n++){ //読み込んだ売上データを配列rcdstrへ格納
-					try{                                           //rcdstr[0]=支店コード、同[1]=商品コード、同[2]=売上金額
-						rcdstr[n] = s;
-						
-					}catch(ArrayIndexOutOfBoundsException e){ //売上ファイルが4行以上ある場合
+				ArrayList<String> rcdstr = new ArrayList<String>();
+				while((s = rcdbr.readLine()) != null){       //読み込んだ売上データを配列rcdstrへ格納
+					if(s.isEmpty() || s.matches("^\\s+$")){    //読み込んだ一行が改行または空白のみの場合
 						System.out.println(file.getName() +"のフォーマットが不正です");
 						return;
 					}
-					if(rcdstr[n].isEmpty() || rcdstr[n].matches("^\\s+$")){  //読み込んだ一行が改行または空白のみの場合
-						System.out.println(file.getName() +"のフォーマットが不正です");
-						return;
-					}
+					
+					rcdstr.add(s);     //rcdstr.get(0)=支店コード、同(1)=商品コード、同(2)=売上金額
+					
 				}
 				
-				if(rcdstr[2] == null | rcdstr[1]== null | rcdstr[0]== null){  //売上ファイルが3行未満の場合
+				if(rcdstr.size() != 3){  //売上ファイルが3行でない場合
 					System.out.println(file.getName() +"のフォーマットが不正です");
 					return;
 				}
 				
-				if(bMap.get(rcdstr[0]) == null){
+				if(!bMap.containsKey(rcdstr.get(0))){
 					System.out.println(file.getName() + "の支店コードが不正です");
 					return;
 				}
 				
-				if(cMap.get(rcdstr[1]) == null){
+				if(!cMap.containsKey(rcdstr.get(1))){
 					System.out.println(file.getName() + "の商品コードが不正です");
 					return;
 				}
 				
-				long b = (bMap.get(rcdstr[0]).sum += Long.parseLong(rcdstr[2]));
-				long c = (cMap.get(rcdstr[1]).sum += Long.parseLong(rcdstr[2]));
-				if(String.valueOf(b).length() >10 || String.valueOf(c).length() > 10){
-					System.out.println("合計金額が10桁を超えました");
+				if(String.valueOf(Long.parseLong(rcdstr.get(2))).length() > 10){
+					System.out.println("予期せぬエラーが発生しました");
 					return;
 				}
-				rcdstr[0] = null;  //エラーを正常にキャッチするためrcdstrの各要素をnullへリセット
-				rcdstr[1] = null;
-				rcdstr[2] = null;
+					
+				if(String.valueOf(bMap.get(rcdstr.get(0)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
+					System.out.println("合計金額が10桁を超えました");
+					return;
+				}else{
+					bMap.get(rcdstr.get(0)).sum += Long.parseLong(rcdstr.get(2));
+				}
 				
+				if(String.valueOf(cMap.get(rcdstr.get(1)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
+					System.out.println("合計金額が10桁を超えました");
+					return;
+				}else{
+					cMap.get(rcdstr.get(1)).sum += Long.parseLong(rcdstr.get(2));
+				}
+				
+				
+				rcdstr.clear();//エラーを正常にキャッチするため
+			
 			}catch(IOException e){
 				System.out.println("予期せぬエラーが発生しました");
 				return;
