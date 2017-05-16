@@ -14,7 +14,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 	long sum;
 	
 	public CalculateSales(String n, String m){
-		 this.code = n;
+		this.code = n;
 		this.name = m;
 		this.sum = 0;
 	}
@@ -22,9 +22,13 @@ public class CalculateSales implements Comparable<CalculateSales>{
 	public int compareTo(CalculateSales c){
 		if(this.sum > c.sum){
 			return 1;
-		}else{
-			return -1;
 		}
+		if(this.sum < c.sum){
+			return -1;
+		}else{
+			return 0;
+		}
+		
 	}
 	
 
@@ -43,7 +47,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 				return "予期せぬエラーが発生しました";
 			}
 			
-		    br =new BufferedReader(new FileReader(file));
+		    br = new BufferedReader(new FileReader(file));
 		    String s;
 		    while((s = br.readLine()) != null){  //定義データを一行ずつ読み込み、引き値で渡されたHashMapへ格納
 		    	String[] str = s.split(",");
@@ -78,7 +82,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		Collections.sort(sortArray);
 		Collections.reverse(sortArray);
 		
-		BufferedWriter bw =null ;
+		BufferedWriter bw = null ;
 		try{
 			bw = new BufferedWriter(new FileWriter(new File (filePass, fileName))); 
 			
@@ -118,9 +122,9 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		//1.支店定義ファイル読み込み
 		//HashMapへ、支店コードをキーとして、対応する支店コード、支店名、合計金額(初期値0)を持つBranchインスタンスを生成・格納する
 		
-		HashMap<String, CalculateSales> bMap = new HashMap<String, CalculateSales>();
+		HashMap<String, CalculateSales> branchMap = new HashMap<String, CalculateSales>();
 	
-		errorCode = fileInput(derectory, "branch.lst","支店", "^([０-９]|\\d){3}$", bMap);
+		errorCode = fileInput(derectory, "branch.lst","支店", "^([０-９]|\\d){3}$", branchMap);
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
@@ -128,9 +132,9 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		}
 		
 		//2.商品定義ファイル読み込み(支店と同様
-		HashMap<String, CalculateSales> cMap = new HashMap<String, CalculateSales>();
+		HashMap<String, CalculateSales> commodityMap = new HashMap<String, CalculateSales>();
 		
-		errorCode = fileInput(derectory, "commodity.lst","商品", "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8}$", cMap);
+		errorCode = fileInput(derectory, "commodity.lst","商品", "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8}$", commodityMap);
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
@@ -150,7 +154,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		}
 		//連番のチェック
 		Collections.sort(rcdFiles);
-		int now =0;
+		int now = 0;
 		if(rcdFiles.size() != 0){
 			now = Integer.parseInt(rcdFiles.get(0).getName().split("\\.")[0]);
 		}
@@ -167,7 +171,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		BufferedReader rcdbr = null;
 		for(File file : rcdFiles){
 			try {
-				rcdbr =new BufferedReader(new FileReader(file)); 
+				rcdbr = new BufferedReader(new FileReader(file)); 
 				String s;
 				ArrayList<String> rcdstr = new ArrayList<String>();
 				while((s = rcdbr.readLine()) != null){       //読み込んだ売上データを配列rcdstrへ格納
@@ -179,12 +183,12 @@ public class CalculateSales implements Comparable<CalculateSales>{
 					return;
 				}
 				
-				if(!bMap.containsKey(rcdstr.get(0))){
+				if(!branchMap.containsKey(rcdstr.get(0))){
 					System.out.println(file.getName() + "の支店コードが不正です");
 					return;
 				}
 				
-				if(!cMap.containsKey(rcdstr.get(1))){
+				if(!commodityMap.containsKey(rcdstr.get(1))){
 					System.out.println(file.getName() + "の商品コードが不正です");
 					return;
 				}
@@ -199,18 +203,18 @@ public class CalculateSales implements Comparable<CalculateSales>{
 					return;
 				}
 					
-				if(String.valueOf(bMap.get(rcdstr.get(0)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
+				if(String.valueOf(branchMap.get(rcdstr.get(0)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 				
-				if(String.valueOf(cMap.get(rcdstr.get(1)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
+				if(String.valueOf(commodityMap.get(rcdstr.get(1)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
 				
-				bMap.get(rcdstr.get(0)).sum += Long.parseLong(rcdstr.get(2));
-				cMap.get(rcdstr.get(1)).sum += Long.parseLong(rcdstr.get(2));
+				branchMap.get(rcdstr.get(0)).sum += Long.parseLong(rcdstr.get(2));
+				commodityMap.get(rcdstr.get(1)).sum += Long.parseLong(rcdstr.get(2));
 				
 			
 			}catch(IOException e){
@@ -231,14 +235,14 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		
 		//4.集計結果出力  
 	    
-		errorCode = fileOutput(derectory, "branch.out", bMap); //支店別集計ファイルの出力
+		errorCode = fileOutput(derectory, "branch.out", branchMap); //支店別集計ファイルの出力
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
 			return;
 		}
 		
-		errorCode =  fileOutput(derectory, "commodity.out", cMap); //商品別集計ファイルの出力
+		errorCode = fileOutput(derectory, "commodity.out", commodityMap); //商品別集計ファイルの出力
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
