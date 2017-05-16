@@ -22,8 +22,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 	public int compareTo(CalculateSales c){
 		if(this.sum > c.sum){
 			return 1;
-		}
-		if(this.sum < c.sum){
+		}else if(this.sum < c.sum){
 			return -1;
 		}else{
 			return 0;
