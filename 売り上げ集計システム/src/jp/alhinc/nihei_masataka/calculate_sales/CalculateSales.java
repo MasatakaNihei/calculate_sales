@@ -29,11 +29,11 @@ public class CalculateSales implements Comparable<CalculateSales>{
 	
 
 	//定義ファイル読み込みメソッド。例外の文を戻り値で返す。
-	public static String fileInput(String filePass , String fileName, String name, String pattern,  HashMap<String,CalculateSales> map){
+	public static String fileInput(String filePass, String fileName, String name, String pattern,  HashMap<String,CalculateSales> map){
 		BufferedReader br = null;
 
 		try{
-			File file = new File(filePass , fileName);
+			File file = new File(filePass, fileName);
 			
 			if(!file.exists()){
 				return name + "定義ファイルが存在しません";
@@ -47,13 +47,8 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		    String s;
 		    while((s = br.readLine()) != null){  //定義データを一行ずつ読み込み、引き値で渡されたHashMapへ格納
 		    	String[] str = s.split(",");
-		    	if(str.length != 2){
-		    		return name + "定義ファイルのフォーマットが不正です";
-		    	}
-		    	if(!str[0].matches(pattern)){
-		    		return name + "定義ファイルのフォーマットが不正です";
-		    	}
-		    	if(str[1].isEmpty() || str[1].matches("^\\s+$")){
+		    	
+		    	if(str.length != 2 || !str[0].matches(pattern)){
 		    		return name + "定義ファイルのフォーマットが不正です";
 		    	}
 		    	
@@ -76,7 +71,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 	
 		
 	//集計ファイル出力メソッド。例外の文を戻り値で返す。
-	public static String fileOutput(String filePass , String fileName, HashMap<String, CalculateSales> map){
+	public static String fileOutput(String filePass, String fileName, HashMap<String, CalculateSales> map){
 		ArrayList<CalculateSales> sortArray = new ArrayList<CalculateSales>();
 		
 		sortArray.addAll(map.values());
@@ -85,7 +80,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		
 		BufferedWriter bw =null ;
 		try{
-			bw = new BufferedWriter(new FileWriter(new File (filePass , fileName))); 
+			bw = new BufferedWriter(new FileWriter(new File (filePass, fileName))); 
 			
 			for(CalculateSales cal : sortArray ){
 				bw.write(cal.code + "," + cal.name + "," + cal.sum + System.lineSeparator());
@@ -114,14 +109,9 @@ public class CalculateSales implements Comparable<CalculateSales>{
 			System.out.println("予期せぬエラーが発生しました");
 			return;	
 		}
+		//drectory=コマンドライン引数で受け取ったディレクト
+		String derectory = args[0];
 		
-		String derectory;
-		//コマンドライン引数の末尾がファイルセパレーターの場合、末尾を一文字削って変数derectoryへ受け取る
-		if(args[0].matches(File.separator+"$")){ 
-			derectory = args[0].substring(0, (args[0].length()-1));
-		}else{
-			derectory = args[0];  //drectory=コマンドライン引数で受け取ったディレクトリ
-		}
 		
 		String errorCode = ""; //各メソッドからエラー文を受け取る変数
 		
@@ -130,7 +120,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		
 		HashMap<String, CalculateSales> bMap = new HashMap<String, CalculateSales>();
 	
-		errorCode = fileInput(derectory, "branch.lst","支店" , "^([０-９]|\\d){3}$", bMap);
+		errorCode = fileInput(derectory, "branch.lst","支店", "^([０-９]|\\d){3}$", bMap);
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
@@ -140,7 +130,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		//2.商品定義ファイル読み込み(支店と同様
 		HashMap<String, CalculateSales> cMap = new HashMap<String, CalculateSales>();
 		
-		errorCode = fileInput(derectory, "commodity.lst","商品" , "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8}$", cMap);
+		errorCode = fileInput(derectory, "commodity.lst","商品", "^(\\d|[A-Za-zＡ-Ｚａ-ｚ０-１]){8}$", cMap);
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
@@ -166,7 +156,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		}
 		
 		for(File f : rcdFiles){
-			if(Integer.parseInt(f.getName().substring(0 , 8)) != now){
+			if(Integer.parseInt(f.getName().substring(0, 8)) != now){
 				System.out.println("売上ファイル名が連番になっていません");
 				return;
 			}
@@ -181,13 +171,7 @@ public class CalculateSales implements Comparable<CalculateSales>{
 				String s;
 				ArrayList<String> rcdstr = new ArrayList<String>();
 				while((s = rcdbr.readLine()) != null){       //読み込んだ売上データを配列rcdstrへ格納
-					if(s.isEmpty() || s.matches("^\\s+$")){    //読み込んだ一行が改行または空白のみの場合
-						System.out.println(file.getName() +"のフォーマットが不正です");
-						return;
-					}
-					
-					rcdstr.add(s);     //rcdstr.get(0)=支店コード、同(1)=商品コード、同(2)=売上金額
-					
+					rcdstr.add(s);     //rcdstr.get(0)=支店コード、同(1)=商品コード、同(2)=売上金額			
 				}
 				
 				if(rcdstr.size() != 3){  //売上ファイルが3行でない場合
@@ -205,6 +189,11 @@ public class CalculateSales implements Comparable<CalculateSales>{
 					return;
 				}
 				
+				if(!rcdstr.get(2).matches("^\\d+$")){
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+				}
+				
 				if(String.valueOf(Long.parseLong(rcdstr.get(2))).length() > 10){
 					System.out.println("予期せぬエラーが発生しました");
 					return;
@@ -213,25 +202,18 @@ public class CalculateSales implements Comparable<CalculateSales>{
 				if(String.valueOf(bMap.get(rcdstr.get(0)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
 					System.out.println("合計金額が10桁を超えました");
 					return;
-				}else{
-					bMap.get(rcdstr.get(0)).sum += Long.parseLong(rcdstr.get(2));
 				}
 				
 				if(String.valueOf(cMap.get(rcdstr.get(1)).sum + Long.parseLong(rcdstr.get(2))).length() >10){
 					System.out.println("合計金額が10桁を超えました");
 					return;
-				}else{
-					cMap.get(rcdstr.get(1)).sum += Long.parseLong(rcdstr.get(2));
 				}
 				
+				bMap.get(rcdstr.get(0)).sum += Long.parseLong(rcdstr.get(2));
+				cMap.get(rcdstr.get(1)).sum += Long.parseLong(rcdstr.get(2));
 				
-				rcdstr.clear();//エラーを正常にキャッチするため
 			
 			}catch(IOException e){
-				System.out.println("予期せぬエラーが発生しました");
-				return;
-			
-			}catch(NumberFormatException e){
 				System.out.println("予期せぬエラーが発生しました");
 				return;
 			
@@ -249,14 +231,14 @@ public class CalculateSales implements Comparable<CalculateSales>{
 		
 		//4.集計結果出力  
 	    
-		errorCode = fileOutput(derectory , "branch.out" , bMap); //支店別集計ファイルの出力
+		errorCode = fileOutput(derectory, "branch.out", bMap); //支店別集計ファイルの出力
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
 			return;
 		}
 		
-		errorCode =  fileOutput(derectory , "commodity.out" , cMap); //商品別集計ファイルの出力
+		errorCode =  fileOutput(derectory, "commodity.out", cMap); //商品別集計ファイルの出力
 		
 		if(!errorCode.isEmpty()){
 			System.out.println(errorCode);
